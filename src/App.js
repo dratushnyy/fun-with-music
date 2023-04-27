@@ -3,10 +3,11 @@ import { Canvas, useFrame, useThree } from 'react-three-fiber';
 import { NOTE_COLORS } from './constants';
 
 
-const Note = ({ note, index, chromaticScaleLength }) => {
-  const angle = (2 * Math.PI * index) / (chromaticScaleLength - 1);
+
+const Note = ({ note, index }) => {
+  const angle = (2 * Math.PI * index) / 12;
   const radius = 5;
-  const height = 5 * index / (chromaticScaleLength - 1);
+  const height = index /3;
 
   const colors = note.split('\\');
   const materials = colors.map(color => ({ color: NOTE_COLORS[color] }));
@@ -21,7 +22,7 @@ const Note = ({ note, index, chromaticScaleLength }) => {
         ]}
         rotation={[0, colors.length > 1 ? Math.PI / 2 : 0, 0]}
       >
-        <sphereGeometry args={[1, 32, 32]} />
+        <sphereGeometry args={[0.5, 32, 32]} />
         {materials.map((material, idx) => (
           <meshBasicMaterial attachArray="material" key={idx} {...material} />
         ))}
@@ -30,17 +31,21 @@ const Note = ({ note, index, chromaticScaleLength }) => {
   );
 };
 
-
 const ChromaticSpiral = () => {
   const chromaticScale = [
     'C', 'C#\\Db', 'D', 'D#\\Eb', 'E', 'F',
-    'F#\\Gb', 'G', 'G#\\Ab', 'A', 'A#\\Bb', 'B', 'C'
+    'F#\\Gb', 'G', 'G#\\Ab', 'A', 'A#\\Bb', 'B'
   ];
+
+  const octaves = 7;
+  const spiralNotes = Array.from({ length: octaves }, (_, octave) =>
+    chromaticScale.map((note, index) => ({ note, index: index + octave * 12 }))
+  ).flat();
 
   return (
     <group>
-      {chromaticScale.map((note, index) => (
-        <Note key={index} note={note} index={index} chromaticScaleLength={chromaticScale.length} />
+      {spiralNotes.map(({ note, index }) => (
+        <Note key={index} note={note} index={index} />
       ))}
     </group>
   );
